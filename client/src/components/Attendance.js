@@ -1,24 +1,13 @@
 import React, { Component } from 'react';
-import { Badge, Card, Modal, Radio } from 'antd';
+import { Badge, Card, Button, Row, Col, Avatar, Popover } from 'antd';
+import testStudents from '../data/students.json';
+import statusMappings from '../data/statusMappings.json';
 
 class Attendance extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      students: {
-        '1': {
-          name: 'John Doe',
-          status: -1
-        },
-        '2': {
-          name: 'Dorra Bischstrutz',
-          status: -1
-        },
-        '3': {
-          name: 'Pappa Joe',
-          status: 3
-        }
-      }
+      students: testStudents
     };
 
     this.setStudentStatus = this.setStudentStatus.bind(this);
@@ -26,21 +15,10 @@ class Attendance extends Component {
 
   setStudentStatus(id, status) {
     let updated = this.state.students;
-    updated[id].status = parseInt(status);
-    this.setState({ students: updated });
-  }
 
-  badgeStatus(status) {
-    switch (status) {
-      case 0:
-        return 'success';
-      case 1:
-        return 'warning';
-      case 2:
-        return 'processing';
-      case 3:
-        return 'error';
-    }
+    console.log(id + ' and ' + status);
+    updated[id].status = status;
+    this.setState({ students: updated });
   }
 
   cardStyle(status) {
@@ -60,21 +38,44 @@ class Attendance extends Component {
     const cards = Object.keys(this.state.students).map(id => {
       const student = this.state.students[id];
 
+      const popOverContent = Object.keys(statusMappings).map(statusId => (
+        <Button
+          size="small"
+          style={{ 'border-color': statusMappings[statusId].color }}
+          onClick={() => this.setStudentStatus(id, statusId)}
+        >
+          {statusMappings[statusId].description}
+        </Button>
+      ));
+
       return (
-        <Card key={id} style={this.cardStyle(student.status)}>
-          {student.name} &nbsp;{' '}
-          <Badge status={this.badgeStatus(student.status)} />
-          <Radio.Group
-            size="small"
-            value={student.status}
-            onChange={e => this.setStudentStatus(id, e.target.value)}
+        <span style={{ marginRight: 24 }}>
+          <Popover
+            placement="top"
+            title={student.firstname + ' ' + student.lastname}
+            content={popOverContent}
+            trigger="click"
           >
-            <Radio.Button value="0">Here</Radio.Button>
-            <Radio.Button value="1">Late</Radio.Button>
-            <Radio.Button value="2">Vacation</Radio.Button>
-            <Radio.Button value="3">Absent</Radio.Button>
-          </Radio.Group>
-        </Card>
+            <Badge
+              style={{ backgroundColor: statusMappings[student.status].color }}
+              //className="happy-badge"
+              dot
+            >
+              <Avatar
+                shape="square"
+                size="large"
+                style={{
+                  backgroundColor: 'transparent',
+                  border: '1px solid lightgrey',
+                  color: 'black',
+                  verticalAlign: 'middle'
+                }}
+              >
+                {student.firstname} {student.lastname[0]}
+              </Avatar>
+            </Badge>
+          </Popover>
+        </span>
       );
     });
 

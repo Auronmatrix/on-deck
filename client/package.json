@@ -17,7 +17,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "precommit": "lint-staged"
+    "precommit": "lint-staged",
+    "lint": "prettier --single-quote --write src/**/*.{js,jsx,json,css}"
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [

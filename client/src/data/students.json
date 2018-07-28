@@ -1,0 +1,17 @@
+{
+  "1": {
+    "firstname": "John",
+    "lastname": "Doe",
+    "status": 0
+  },
+  "2": {
+    "firstname": "Dorra",
+    "lastname": "Bischstrutz",
+    "status": 0
+  },
+  "3": {
+    "firstname": "Pappa",
+    "lastname": "Joe",
+    "status": 3
+  }
+}
