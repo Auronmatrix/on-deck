@@ -16,19 +16,6 @@ class Attendance extends Component {
     this.setState({ students: updated });
   }
 
-  cardStyle(status) {
-    switch (status) {
-      case -1:
-        return {
-          'border-color': '#1890ff',
-          width: 300,
-          'margin-bottom': '5px'
-        };
-      default:
-        return { width: 300, 'margin-bottom': '5px' };
-    }
-  }
-
   componentDidMount() {
     fetch('/students/G4a')
       .then(res => res.json())
@@ -67,7 +54,6 @@ class Attendance extends Component {
                   style={{
                     backgroundColor: statusMappings[student.status].color
                   }}
-                  //className="happy-badge"
                   dot
                 >
                   <Avatar
