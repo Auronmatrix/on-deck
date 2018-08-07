@@ -1,0 +1,30 @@
+{
+  "0": {
+    "description": "present",
+    "color": "#60B730"
+  },
+  "1": {
+    "description": "late",
+    "color": "#1A5E4B"
+  },
+  "2": {
+    "description": "unknown",
+    "color": "#11282B"
+  },
+  "3": {
+    "description": "sick",
+    "color": "#E36915"
+  },
+  "4": {
+    "description": "permit",
+    "color": "#E36915"
+  },
+  "5": {
+    "description": "vacation",
+    "color": "#E36915"
+  },
+  "6": {
+    "description": "absent",
+    "color": "#EB3A1E"
+  }
+}
