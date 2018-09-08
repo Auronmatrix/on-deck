@@ -16,10 +16,31 @@ class Attendance extends Component {
     this.setState({ students: updated });
   }
 
+  studentNamesToMap(names) {
+    const map = {};
+    names.forEach((name, i) => {
+      if (name) {
+        const nameParts = name.split(' ');
+        map[i] = {
+          shortName: nameParts[0] + ' ' + nameParts[1][0] + '.',
+          name,
+          status: 0,
+          id: i
+        };
+      }
+    });
+
+    console.log(map);
+    return map;
+  }
+
   componentDidMount() {
-    fetch('/students/G4a')
+    fetch('/students/G4')
       .then(res => res.json())
-      .then(jsonValue => this.setState({ students: jsonValue }))
+      .then(jsonValue => {
+        console.log(jsonValue);
+        this.setState({ students: this.studentNamesToMap(jsonValue) });
+      })
       .catch(err => this.setState({ errors: err }));
   }
 
@@ -38,7 +59,7 @@ class Attendance extends Component {
             <span style={{ marginRight: 24 }}>
               <Popover
                 placement="top"
-                title={student.firstname + ' ' + student.lastname}
+                title={student.name}
                 content={Object.keys(statusMappings).map(statusId => (
                   <Button
                     size="small"
@@ -66,7 +87,7 @@ class Attendance extends Component {
                       verticalAlign: 'middle'
                     }}
                   >
-                    {student.firstname} {student.lastname[0]}
+                    {student.shortName}
                   </Avatar>
                 </Badge>
               </Popover>
