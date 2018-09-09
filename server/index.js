@@ -5,7 +5,13 @@ const server = restify.createServer()
 const schoolService = require('./src/school-service')
 
 const restifyBodyParser = require('restify-plugins').bodyParser
+
 server.use(restifyBodyParser())
+
+server.get('*', restify.plugins.serveStatic({
+  directory: './public/build',
+  default: 'index.html'
+}))
 
 server.get('/students/:class/:date', async (req, res, next) => {
   try{

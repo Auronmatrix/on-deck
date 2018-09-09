@@ -40,7 +40,11 @@ const getStudentsData = async (opts) => {
   }
 
   if (dateExists) {
-     status = await getRow({...opts, row: dateRow})
+     const existingStatus = await getRow({...opts, row: dateRow})
+     for (let k = 0; k < status.length; k++) {
+      status[k] = existingStatus[k] || status[k]
+   }
+   
      console.log('[Get Student Data For Date] %s', JSON.stringify(status))
   }
 
