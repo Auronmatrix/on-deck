@@ -4,11 +4,49 @@ const restify = require('restify')
 const server = restify.createServer()
 const schoolService = require('./src/school-service')
 
+const restifyBodyParser = require('restify-plugins').bodyParser
+server.use(restifyBodyParser())
+
 server.get('/students/:class', async (req, res, next) => {
-  console.log('[Get Students]')
-  const className = 'G4'
-  const students = await schoolService.getStudents({ className })
+  const opts = {
+    className: req.params.class
+  }
+
+  console.log('[Get Students] %s', JSON.stringify(opts))
+  
+  const students = await schoolService.getStudents(opts)
   res.json(students)
+  next()
+})
+
+server.post('/attendance/:class/:date', async (req, res, next) => {
+  try {
+    let opts = {
+      className: req.params.class
+    }
+
+    const date = req.params.date
+    const data = JSON.parse(req.body)
+
+    const students = await schoolService.getStudents(opts)
+
+    const row = new Array(students.length)
+    Object.keys(data.students).forEach(id => {
+      const index = students.indexOf(data.students[id].name)
+      row[index] = data.students[id].status
+    })
+
+    row[0] = date
+    opts.values = row
+
+    console.log('[Post Attendance] %s', JSON.stringify(opts))
+
+    const update = await schoolService.upsertAttendance(opts)
+    res.json(update)
+  } catch (err) {
+    console.error(err)
+    res.json(500, { code: 500, error: err.message })
+  }
   next()
 })
 

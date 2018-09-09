@@ -1,13 +1,27 @@
 import React, { Component } from 'react';
-import { Badge, Button, Avatar, Popover, notification } from 'antd';
+import {
+  Badge,
+  Button,
+  Avatar,
+  Popover,
+  notification,
+  DatePicker,
+  Row,
+  Col
+} from 'antd';
 import statusMappings from '../data/statusMappings.json';
+import * as Moment from 'moment';
 
 class Attendance extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      selectedDate: new Moment()
+    };
     this.setStudentStatus = this.setStudentStatus.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
+    this.onDateSelect = this.onDateSelect.bind(this);
+    this.sumbitAttendance = this.sumbitAttendance.bind(this);
   }
 
   setStudentStatus(id, status) {
@@ -34,8 +48,30 @@ class Attendance extends Component {
     return map;
   }
 
+  onDateSelect(date) {
+    this.setState({
+      selectedDate: date
+    });
+  }
+
+  sumbitAttendance() {
+    fetch('/attendance/G4/' + this.state.selectedDate.format('YYYY-DD-MM'), {
+      method: 'POST',
+      headers: {
+        contentType: 'application/json'
+      },
+      body: JSON.stringify(this.state)
+    })
+      .then(res => res.json())
+      .then(jsonValue => {
+        console.log(jsonValue);
+        this.setState({ students: this.studentNamesToMap(jsonValue) });
+      })
+      .catch(err => this.setState({ errors: err }));
+  }
+
   componentDidMount() {
-    fetch('/students/G4')
+    fetch('/students/G4?date=' + this.state.selectedDate)
       .then(res => res.json())
       .then(jsonValue => {
         console.log(jsonValue);
@@ -98,8 +134,30 @@ class Attendance extends Component {
 
     return (
       <div>
-        <h1>Attendance</h1>
-        {cards}
+        <Row>
+          <Col>
+            <h1>Attendance</h1>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
+            <DatePicker
+              onChange={this.onDateSelect}
+              defaultValue={this.state.selectedDate}
+              format={'YYYY-DD-MM'}
+            />
+          </Col>
+        </Row>
+        <Row>
+          <Col>{cards}</Col>
+        </Row>
+        <Row>
+          <Col>
+            <Button type="primary" onClick={this.sumbitAttendance}>
+              Submit Attendance
+            </Button>
+          </Col>
+        </Row>
       </div>
     );
   }

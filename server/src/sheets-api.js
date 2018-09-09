@@ -114,6 +114,15 @@ const appendSheetValues = async (opts) => {
   return sheets.spreadsheets.values.append({...BASE_SHEET_OPTS, ...opts})
 }
 
+const updateSheetValues = async (opts) => {
+  if (!sheets) {
+    await initialize()
+  }
+
+  return sheets.spreadsheets.values.update({...BASE_SHEET_OPTS, ...opts})
+}
+
+
 module.exports = {
-  initialize, getSheetValues, appendSheetValues
+  initialize, getSheetValues, appendSheetValues, updateSheetValues
 }
