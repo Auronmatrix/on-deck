@@ -61,8 +61,11 @@ const getStudentsData = async (opts) => {
     }
   })
 
-  console.log(map)
-  return map
+  return {
+    dateExists,
+    dateRow,
+    students: map
+  }
 }
 
 const getDates = async (opts) => {
@@ -99,7 +102,7 @@ const upsertAttendance = async (opts) => {
 
   const req = {
     range,
-    valueInputOption: 'USER_ENTERED',
+    valueInputOption: 'RAW',
     requestBody: { values: [opts.values] }
   }
 

@@ -8,7 +8,8 @@ import {
   DatePicker,
   Row,
   Col,
-  Select
+  Select,
+  Icon
 } from 'antd';
 import statusMappings from '../data/statusMappings.json';
 import * as Moment from 'moment';
@@ -20,14 +21,15 @@ class Attendance extends Component {
     this.state = {
       selectedDate: new Moment(),
       className: 'G3',
-      loading: true
+      loading: true,
+      dateExists: false
     };
     this.setStudentStatus = this.setStudentStatus.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.onDateSelect = this.onDateSelect.bind(this);
     this.sumbitAttendance = this.sumbitAttendance.bind(this);
     this.fetchStudentData = this.fetchStudentData.bind(this);
-    this.submitButtonState = this.submitButtonState.bind(this);
+    this.hasStudentStatesChanged = this.hasStudentStatesChanged.bind(this);
     this.setClassName = this.setClassName.bind(this);
   }
 
@@ -111,7 +113,9 @@ class Attendance extends Component {
       .then(res => res.json())
       .then(jsonValue => {
         this.setState({
-          students: jsonValue,
+          dateExists: jsonValue.dateExists,
+          dateRow: jsonValue.dateRow,
+          students: jsonValue.students,
           selectedDate: date,
           loading: false
         });
@@ -119,22 +123,16 @@ class Attendance extends Component {
       .catch(err => this.setState({ errors: err }));
   }
 
-  submitButtonState() {
+  hasStudentStatesChanged() {
     if (!this.state.students) {
-      return 0;
+      return false;
     }
 
-    const diffCount = Object.keys(this.state.students).reduce((diff, key) => {
+    return Object.keys(this.state.students).some(key => {
       return (
-        diff +
-        this.state.students[key].status -
-        this.state.students[key].oldStatus
+        this.state.students[key].status !== this.state.students[key].oldStatus
       );
-    }, 0);
-
-    console.log(diffCount);
-
-    return diffCount === 0 ? 1 : 2;
+    });
   }
 
   render() {
@@ -145,7 +143,8 @@ class Attendance extends Component {
       });
     }
 
-    const submitState = this.submitButtonState();
+    const updateRequired =
+      !this.state.dateExists || this.hasStudentStatesChanged();
 
     const cards = this.state.students
       ? Object.keys(this.state.students).map(id => {
@@ -215,7 +214,7 @@ class Attendance extends Component {
       <div>
         <Row className="spacer">
           <Col>
-            <h3>Class Attendance ( {this.state.className} )</h3>
+            <h2>Class Attendance ({this.state.className})</h2>
           </Col>
         </Row>
         <Row>
@@ -240,17 +239,17 @@ class Attendance extends Component {
           {this.state.loading ? (
             <Loader loading={this.state.loading} />
           ) : (
-            <Col span={24}>{cards}</Col>
+            <Col>{cards}</Col>
           )}
         </Row>
         <Row className="spacer">
           <Col>
             <Button
               loading={this.state.loading}
-              type={submitState === 0 ? 'dashed' : 'primary'}
+              type={updateRequired ? 'primary' : 'dashed'}
               onClick={this.sumbitAttendance}
-              ghost={submitState === 1}
-              icon="check"
+              icon={updateRequired ? 'save' : 'check'}
+              disabled={!updateRequired}
             >
               Submit
             </Button>
