@@ -22,6 +22,7 @@ class Attendance extends Component {
     this.componentDidMount = this.componentDidMount.bind(this);
     this.onDateSelect = this.onDateSelect.bind(this);
     this.sumbitAttendance = this.sumbitAttendance.bind(this);
+    this.fetchStudentData = this.fetchStudentData.bind(this);
   }
 
   setStudentStatus(id, status) {
@@ -30,32 +31,13 @@ class Attendance extends Component {
     this.setState({ students: updated });
   }
 
-  studentNamesToMap(names) {
-    const map = {};
-    names.forEach((name, i) => {
-      if (name) {
-        const nameParts = name.split(' ');
-        map[i] = {
-          shortName: nameParts[0] + ' ' + nameParts[1][0] + '.',
-          name,
-          status: 0,
-          id: i
-        };
-      }
-    });
-
-    console.log(map);
-    return map;
-  }
-
   onDateSelect(date) {
-    this.setState({
-      selectedDate: date
-    });
+    this.fetchStudentData(date);
   }
 
   sumbitAttendance() {
-    fetch('/attendance/G4/' + this.state.selectedDate.format('YYYY-DD-MM'), {
+    const forDate = this.state.selectedDate.format('YYYY-DD-MM');
+    fetch('/attendance/G4/' + forDate, {
       method: 'POST',
       headers: {
         contentType: 'application/json'
@@ -71,11 +53,16 @@ class Attendance extends Component {
   }
 
   componentDidMount() {
-    fetch('/students/G4?date=' + this.state.selectedDate)
+    this.fetchStudentData(this.state.selectedDate);
+  }
+
+  fetchStudentData(date) {
+    const forDate = date.format('YYYY-DD-MM');
+    fetch('/students/G4/' + forDate)
       .then(res => res.json())
       .then(jsonValue => {
         console.log(jsonValue);
-        this.setState({ students: this.studentNamesToMap(jsonValue) });
+        this.setState({ students: jsonValue, selectedDate: date });
       })
       .catch(err => this.setState({ errors: err }));
   }

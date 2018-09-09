@@ -7,14 +7,16 @@ const schoolService = require('./src/school-service')
 const restifyBodyParser = require('restify-plugins').bodyParser
 server.use(restifyBodyParser())
 
-server.get('/students/:class', async (req, res, next) => {
+server.get('/students/:class/:date', async (req, res, next) => {
   const opts = {
-    className: req.params.class
+    className: req.params.class,
+    date: req.params.date
   }
 
   console.log('[Get Students] %s', JSON.stringify(opts))
   
-  const students = await schoolService.getStudents(opts)
+  const students = await schoolService.getStudentsData(opts)
+  console.log(students)
   res.json(students)
   next()
 })
@@ -22,13 +24,13 @@ server.get('/students/:class', async (req, res, next) => {
 server.post('/attendance/:class/:date', async (req, res, next) => {
   try {
     let opts = {
-      className: req.params.class
+      className: req.params.class,
+      date: req.params.date
     }
 
-    const date = req.params.date
     const data = JSON.parse(req.body)
 
-    const students = await schoolService.getStudents(opts)
+    const students = await schoolService.getStudentsNames(opts)
 
     const row = new Array(students.length)
     Object.keys(data.students).forEach(id => {
@@ -36,7 +38,7 @@ server.post('/attendance/:class/:date', async (req, res, next) => {
       row[index] = data.students[id].status
     })
 
-    row[0] = date
+    row[0] = opts.date
     opts.values = row
 
     console.log('[Post Attendance] %s', JSON.stringify(opts))
@@ -47,6 +49,7 @@ server.post('/attendance/:class/:date', async (req, res, next) => {
     console.error(err)
     res.json(500, { code: 500, error: err.message })
   }
+
   next()
 })
 
