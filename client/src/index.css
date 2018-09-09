@@ -2,8 +2,38 @@ body {
   margin: 0;
   padding: 0;
   font-family: sans-serif;
+  background-color: #fbfbfb !important;
 }
 
 .spacer {
   margin-top: 15px;
+}
+
+.ant-layout-sider-zero-width-trigger {
+  top: 3px !important;
+  height: 26px !important;
+  line-height: 26px !important;
+  background-color: rgba(24, 144, 255, 0.7) !important;
+}
+
+.ant-avatar-lg.student-avatar {
+  min-width: 70px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  margin-bottom: 15px;
+  margin-right: 5px;
+  background-color: #fff;
+  border: 1px solid lightgrey;
+  color: black;
+}
+
+.student-badge > .ant-badge-count {
+  z-index: 99;
+}
+
+.set-status-btn {
+  min-height: 40px;
+  min-width: 25%;
+  margin: 5px;
 }

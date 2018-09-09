@@ -12,13 +12,14 @@ import {
 } from 'antd';
 import statusMappings from '../data/statusMappings.json';
 import * as Moment from 'moment';
+import Loader from './Loader';
 
 class Attendance extends Component {
   constructor(props) {
     super(props);
     this.state = {
       selectedDate: new Moment(),
-      className: 'G4',
+      className: 'G3',
       loading: true
     };
     this.setStudentStatus = this.setStudentStatus.bind(this);
@@ -91,20 +92,24 @@ class Attendance extends Component {
   }
 
   setClassName(value) {
-    this.setState({
-      className: value
-    });
+    this.setState(
+      {
+        className: value,
+        students: undefined
+      },
+      () => this.fetchStudentData(this.state.selectedDate)
+    );
   }
 
   fetchStudentData(date) {
     this.setState({
       loading: true
     });
+
     const forDate = date.format('YYYY-DD-MM');
     fetch(`/students/${this.state.className}/${forDate}`)
       .then(res => res.json())
       .then(jsonValue => {
-        console.log(jsonValue);
         this.setState({
           students: jsonValue,
           selectedDate: date,
@@ -145,19 +150,23 @@ class Attendance extends Component {
     const cards = this.state.students
       ? Object.keys(this.state.students).map(id => {
           const student = this.state.students[id];
+          const studenHasStatus = student.status >= 0;
 
           return (
-            <span style={{ marginRight: 24 }}>
+            <span>
               <Popover
-                placement="top"
+                placement="bottom"
                 title={student.name}
                 content={Object.keys(statusMappings).map(statusId => {
                   const isActiveStatus = student.status == statusId;
                   return (
                     <Button
                       size="small"
+                      className="set-status-btn"
                       style={{
-                        borderColor: statusMappings[statusId].color,
+                        borderColor: studenHasStatus
+                          ? statusMappings[statusId].color
+                          : 'lightgrey',
                         color: !isActiveStatus
                           ? statusMappings[statusId].color
                           : '#FFF',
@@ -174,19 +183,23 @@ class Attendance extends Component {
                 trigger="click"
               >
                 <Badge
+                  className="student-badge"
+                  count={student.status}
                   style={{
-                    backgroundColor: statusMappings[student.status].color
+                    backgroundColor: studenHasStatus
+                      ? statusMappings[student.status].color
+                      : 'lightgrey',
+                    color: '#fff'
                   }}
-                  dot
                 >
                   <Avatar
+                    className="student-avatar"
                     shape="square"
                     size="large"
                     style={{
-                      backgroundColor: 'transparent',
-                      border: '1px solid lightgrey',
-                      color: 'black',
-                      verticalAlign: 'middle'
+                      borderColor: studenHasStatus
+                        ? statusMappings[student.status].color
+                        : 'lightgrey'
                     }}
                   >
                     {student.shortName}
@@ -200,19 +213,20 @@ class Attendance extends Component {
 
     return (
       <div>
-        <Row>
-          <Col>
-            <h1>Attendance</h1>
-          </Col>
-        </Row>
         <Row className="spacer">
           <Col>
+            <h3>Class Attendance ( {this.state.className} )</h3>
+          </Col>
+        </Row>
+        <Row>
+          <Col>
             <Select
-              defaultValue="G4"
+              defaultValue="G3"
               style={{ width: 120 }}
               onChange={this.setClassName}
             >
-              <option value="G4">G4</option>
+              <Select.Option value="G1">G1</Select.Option>
+              <Select.Option value="G3">G3</Select.Option>
             </Select>
             &nbsp;
             <DatePicker
@@ -223,7 +237,11 @@ class Attendance extends Component {
           </Col>
         </Row>
         <Row className="spacer">
-          <Col>{cards}</Col>
+          {this.state.loading ? (
+            <Loader loading={this.state.loading} />
+          ) : (
+            <Col span={24}>{cards}</Col>
+          )}
         </Row>
         <Row className="spacer">
           <Col>
@@ -232,8 +250,9 @@ class Attendance extends Component {
               type={submitState === 0 ? 'dashed' : 'primary'}
               onClick={this.sumbitAttendance}
               ghost={submitState === 1}
+              icon="check"
             >
-              Submit Attendance
+              Submit
             </Button>
           </Col>
         </Row>

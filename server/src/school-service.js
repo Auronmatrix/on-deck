@@ -52,7 +52,7 @@ const getStudentsData = async (opts) => {
     if (name) {
       const nameParts = name.split(' ')
       map[i] = {
-        shortName: nameParts[0] + ' ' + nameParts[1][0] + '.',
+        shortName: nameParts[0] + ' ' + nameParts[1][0],
         name,
         status: parseInt(status[i]),
         oldStatus: parseInt(status[i]),

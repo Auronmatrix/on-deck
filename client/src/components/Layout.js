@@ -1,24 +1,19 @@
-import { Layout, Menu, Breadcrumb } from 'antd';
+import { Layout, Menu, Icon } from 'antd';
 import React from 'react';
 import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
 
 import Attendance from './Attendance';
 import About from './About';
 import Reports from './Reports';
+import LogoImage from '../logo.png';
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content, Footer, Sider } = Layout;
 
 export default props => (
   <Router>
     <Layout>
-      <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={['1']}
-          style={{ lineHeight: '64px' }}
-        >
+      <Sider breakpoint="lg" collapsedWidth="0">
+        <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
           <Menu.Item key="1">
             <NavLink to="/">Attendance</NavLink>
           </Menu.Item>
@@ -26,23 +21,24 @@ export default props => (
             <NavLink to="/reports">Reports</NavLink>
           </Menu.Item>
           <Menu.Item key="3">
-            <NavLink to="/about">About</NavLink>
+            <Icon type="user" />
+            <span className="nav-text">
+              <NavLink to="/about">About</NavLink>
+            </span>
           </Menu.Item>
         </Menu>
-      </Header>
-      <Content style={{ padding: '0 50px', marginTop: 64 }}>
-        <Breadcrumb style={{ margin: '16px 0' }}>
-          <Breadcrumb.Item>Home</Breadcrumb.Item>
-          <Breadcrumb.Item>List</Breadcrumb.Item>
-          <Breadcrumb.Item>App</Breadcrumb.Item>
-        </Breadcrumb>
-        <div style={{ background: '#fff', padding: 24, minHeight: 380 }}>
-          <Route key="1" path="/" exact="false" component={Attendance} />
-          <Route key="2" path="/reports" component={Reports} />
-          <Route key="3" path="/about" component={About} />
-        </div>
-      </Content>
-      <Footer style={{ textAlign: 'center' }}>Prototyped with heart</Footer>
+      </Sider>
+      <Layout>
+        <Content
+          style={{ margin: '0', minHeight: '100%', background: '#fbfbfb' }}
+        >
+          <div style={{ padding: '25px 5px 5px 5px', background: '#fbfbfb' }}>
+            <Route key="1" path="/" exact="false" component={Attendance} />
+            <Route key="2" path="/reports" component={Reports} />
+            <Route key="3" path="/about" component={About} />
+          </div>
+        </Content>
+      </Layout>
     </Layout>
   </Router>
 );
