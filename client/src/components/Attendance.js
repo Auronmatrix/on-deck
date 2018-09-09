@@ -7,7 +7,8 @@ import {
   notification,
   DatePicker,
   Row,
-  Col
+  Col,
+  Select
 } from 'antd';
 import statusMappings from '../data/statusMappings.json';
 import * as Moment from 'moment';
@@ -16,13 +17,17 @@ class Attendance extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedDate: new Moment()
+      selectedDate: new Moment(),
+      className: 'G4',
+      loading: true
     };
     this.setStudentStatus = this.setStudentStatus.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.onDateSelect = this.onDateSelect.bind(this);
     this.sumbitAttendance = this.sumbitAttendance.bind(this);
     this.fetchStudentData = this.fetchStudentData.bind(this);
+    this.submitButtonState = this.submitButtonState.bind(this);
+    this.setClassName = this.setClassName.bind(this);
   }
 
   setStudentStatus(id, status) {
@@ -32,12 +37,29 @@ class Attendance extends Component {
   }
 
   onDateSelect(date) {
-    this.fetchStudentData(date);
+    if (date) {
+      this.fetchStudentData(date);
+    }
+  }
+
+  fetchInfo() {
+    fetch(`/info`)
+      .then(res => res.json())
+      .then(jsonValue => {
+        this.setState({
+          loading: false
+        });
+      })
+      .catch(err => this.setState({ errors: err }));
   }
 
   sumbitAttendance() {
     const forDate = this.state.selectedDate.format('YYYY-DD-MM');
-    fetch('/attendance/G4/' + forDate, {
+    this.setState({
+      loading: true
+    });
+
+    fetch(`/attendance/${this.state.className}/${forDate}`, {
       method: 'POST',
       headers: {
         contentType: 'application/json'
@@ -47,7 +69,19 @@ class Attendance extends Component {
       .then(res => res.json())
       .then(jsonValue => {
         console.log(jsonValue);
-        this.setState({ students: this.studentNamesToMap(jsonValue) });
+
+        notification.success({
+          message: 'Updated Attendance',
+          description:
+            'Successfully updated attendance for ' +
+            (jsonValue.updatedCells - 1) +
+            ' students in G4 for ' +
+            this.state.selectedDate.format('YYYY-MM-DD')
+        });
+
+        this.setState({
+          loading: false
+        });
       })
       .catch(err => this.setState({ errors: err }));
   }
@@ -56,15 +90,46 @@ class Attendance extends Component {
     this.fetchStudentData(this.state.selectedDate);
   }
 
+  setClassName(value) {
+    this.setState({
+      className: value
+    });
+  }
+
   fetchStudentData(date) {
+    this.setState({
+      loading: true
+    });
     const forDate = date.format('YYYY-DD-MM');
-    fetch('/students/G4/' + forDate)
+    fetch(`/students/${this.state.className}/${forDate}`)
       .then(res => res.json())
       .then(jsonValue => {
         console.log(jsonValue);
-        this.setState({ students: jsonValue, selectedDate: date });
+        this.setState({
+          students: jsonValue,
+          selectedDate: date,
+          loading: false
+        });
       })
       .catch(err => this.setState({ errors: err }));
+  }
+
+  submitButtonState() {
+    if (!this.state.students) {
+      return 0;
+    }
+
+    const diffCount = Object.keys(this.state.students).reduce((diff, key) => {
+      return (
+        diff +
+        this.state.students[key].status -
+        this.state.students[key].oldStatus
+      );
+    }, 0);
+
+    console.log(diffCount);
+
+    return diffCount === 0 ? 1 : 2;
   }
 
   render() {
@@ -74,6 +139,9 @@ class Attendance extends Component {
         description: this.state.errors.message
       });
     }
+
+    const submitState = this.submitButtonState();
+
     const cards = this.state.students
       ? Object.keys(this.state.students).map(id => {
           const student = this.state.students[id];
@@ -83,15 +151,26 @@ class Attendance extends Component {
               <Popover
                 placement="top"
                 title={student.name}
-                content={Object.keys(statusMappings).map(statusId => (
-                  <Button
-                    size="small"
-                    style={{ borderColor: statusMappings[statusId].color }}
-                    onClick={() => this.setStudentStatus(id, statusId)}
-                  >
-                    {statusMappings[statusId].description}
-                  </Button>
-                ))}
+                content={Object.keys(statusMappings).map(statusId => {
+                  const isActiveStatus = student.status == statusId;
+                  return (
+                    <Button
+                      size="small"
+                      style={{
+                        borderColor: statusMappings[statusId].color,
+                        color: !isActiveStatus
+                          ? statusMappings[statusId].color
+                          : '#FFF',
+                        backgroundColor: isActiveStatus
+                          ? statusMappings[statusId].color
+                          : 'transparent'
+                      }}
+                      onClick={() => this.setStudentStatus(id, statusId)}
+                    >
+                      {statusMappings[statusId].description}
+                    </Button>
+                  );
+                })}
                 trigger="click"
               >
                 <Badge
@@ -126,8 +205,16 @@ class Attendance extends Component {
             <h1>Attendance</h1>
           </Col>
         </Row>
-        <Row>
+        <Row className="spacer">
           <Col>
+            <Select
+              defaultValue="G4"
+              style={{ width: 120 }}
+              onChange={this.setClassName}
+            >
+              <option value="G4">G4</option>
+            </Select>
+            &nbsp;
             <DatePicker
               onChange={this.onDateSelect}
               defaultValue={this.state.selectedDate}
@@ -135,12 +222,17 @@ class Attendance extends Component {
             />
           </Col>
         </Row>
-        <Row>
+        <Row className="spacer">
           <Col>{cards}</Col>
         </Row>
-        <Row>
+        <Row className="spacer">
           <Col>
-            <Button type="primary" onClick={this.sumbitAttendance}>
+            <Button
+              loading={this.state.loading}
+              type={submitState === 0 ? 'dashed' : 'primary'}
+              onClick={this.sumbitAttendance}
+              ghost={submitState === 1}
+            >
               Submit Attendance
             </Button>
           </Col>

@@ -104,7 +104,7 @@ const upsertAttendance = async (opts) => {
 
   const res = dateExists ? await service.updateSheetValues(req) : await service.appendSheetValues(req)
 
-  return res.data.updates
+  return res.data
 }
 
 const exists = (index) => index > 1 // Not in title row

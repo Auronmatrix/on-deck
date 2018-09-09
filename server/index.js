@@ -8,6 +8,7 @@ const restifyBodyParser = require('restify-plugins').bodyParser
 server.use(restifyBodyParser())
 
 server.get('/students/:class/:date', async (req, res, next) => {
+  try{
   const opts = {
     className: req.params.class,
     date: req.params.date
@@ -18,6 +19,10 @@ server.get('/students/:class/:date', async (req, res, next) => {
   const students = await schoolService.getStudentsData(opts)
   console.log(students)
   res.json(students)
+} catch (err) {
+  console.error(err)
+  res.json(500, { code: 500, error: err.message })
+}
   next()
 })
 
