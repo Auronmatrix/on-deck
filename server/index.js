@@ -1,10 +1,12 @@
 require('dotenv').config()
-const restify = require('restify')
 
+const restify = require('restify')
 const server = restify.createServer()
 const schoolService = require('./src/school-service')
-
 const restifyBodyParser = require('restify-plugins').bodyParser
+
+const isProduction = process.env.NODE_ENV === 'production'
+const PORT = isProduction ? 80 : 8080
 
 server.use(restifyBodyParser())
 
@@ -14,21 +16,21 @@ server.get('*', restify.plugins.serveStatic({
 }))
 
 server.get('/students/:class/:date', async (req, res, next) => {
-  try{
-  const opts = {
-    className: req.params.class,
-    date: req.params.date
-  }
+  try {
+    const opts = {
+      className: req.params.class,
+      date: req.params.date
+    }
 
-  console.log('[Get Students] %s', JSON.stringify(opts))
-  
-  const students = await schoolService.getStudentsData(opts)
-  console.log(students)
-  res.json(students)
-} catch (err) {
-  console.error(err)
-  res.json(500, { code: 500, error: err.message })
-}
+    console.log('[Get Students] %s', JSON.stringify(opts))
+
+    const students = await schoolService.getStudentsData(opts)
+    console.log(students)
+    res.json(students)
+  } catch (err) {
+    console.error(err)
+    res.json(500, { code: 500, error: err.message })
+  }
   next()
 })
 
@@ -64,7 +66,7 @@ server.post('/attendance/:class/:date', async (req, res, next) => {
   next()
 })
 
-server.listen(8080, async () => {
+server.listen(PORT, async () => {
   console.log('[Server] %s listening at %s', server.name, server.url)
   console.log('[Server] Setup for tracking to spreadsheet \n')
   console.log('[Server] https://docs.google.com/spreadsheets/d/' + process.env.SPREADSHEET_ID)

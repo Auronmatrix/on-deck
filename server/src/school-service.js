@@ -18,7 +18,6 @@ const getStudentsNames = async (opts) => {
 }
 
 const getRow = async (opts) => {
-
   if (!opts.row) {
     throw new Error('No row in opts.row specified. Instead got ' + opts.row)
   }
@@ -36,22 +35,22 @@ const getStudentsData = async (opts) => {
 
   let status = new Array(names.length)
   for (let k = 0; k < status.length; k++) {
-     status[k] = 0
+    status[k] = 0
   }
 
   if (dateExists) {
-     const existingStatus = await getRow({...opts, row: dateRow})
-     for (let k = 0; k < status.length; k++) {
+    const existingStatus = await getRow({...opts, row: dateRow})
+    for (let k = 0; k < status.length; k++) {
       status[k] = existingStatus[k] || status[k]
-   }
-   
-     console.log('[Get Student Data For Date] %s', JSON.stringify(status))
+    }
+
+    console.log('[Get Student Data For Date] %s', JSON.stringify(status))
   }
 
   const map = {}
   names.forEach((name, i) => {
     if (name) {
-      const nameParts = name.split(' ');
+      const nameParts = name.split(' ')
       map[i] = {
         shortName: nameParts[0] + ' ' + nameParts[1][0] + '.',
         name,
@@ -62,8 +61,8 @@ const getStudentsData = async (opts) => {
     }
   })
 
-   console.log(map)
-   return map
+  console.log(map)
+  return map
 }
 
 const getDates = async (opts) => {
@@ -75,7 +74,6 @@ const getDates = async (opts) => {
 }
 
 const getRowNumberForDate = async (opts) => {
-
   if (!opts.date) {
     throw new Error('Invalid opts.date specified. Instead got ' + opts.date)
   }
@@ -85,7 +83,6 @@ const getRowNumberForDate = async (opts) => {
 }
 
 const upsertAttendance = async (opts) => {
-
   if (!opts.values) {
     throw new Error('No opts.values specified to upsert')
   }

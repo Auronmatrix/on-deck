@@ -78,7 +78,7 @@ const getNewToken = (oAuth2Client) => {
     rl.question('Enter the code from that page here: ', async (code) => {
       rl.close()
       oAuth2Client.getToken(code, async (err, token) => {
-        if (err) return console.error('Error while trying to retrieve access token', err);
+        if (err) return console.error('Error while trying to retrieve access token', err)
         oAuth2Client.setCredentials(token)
         // Store the token to disk for later program executions
         await storeToken(token)
