@@ -22,11 +22,13 @@ const terribleTempAuth = {
     const bitArray = sjcl.hash.sha256.hash(uname + pwd);
     const hash = sjcl.codec.hex.fromBits(bitArray);
 
+    // Replace with proper auth api
+    // User: test
+    // Pass: test
+
     if (
       hash ===
-        '4bcd6a1424af95ce0abc806d5934e3571df51a3e8d95611e87a95b1985bc15cd' ||
-      hash ===
-        '866d271ad5e4200cc1102341f1d9e0bbf16f96b83a2cb0d2dd8a932d8f8ac7e0'
+      '03ffdf45276dd38ffac79b0e9c6c14d89d9113ad783d5922580f4c66a3305591'
     ) {
       this.isAuthenticated = true;
       setTimeout(cb, 100);
